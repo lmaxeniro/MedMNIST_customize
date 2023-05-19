@@ -113,16 +113,25 @@ class MedMNIST2D(MedMNIST):
 
         return img, target
 
-    def save(self, folder, postfix="png", write_csv=True):
-
+    def save(self, folder, postfix="png", write_csv=True, customize=True):
         from medmnist.utils import save2d
-
+        img_path = folder if customize else os.path.join(folder, self.flag)
+        if write_csv:
+            if customize:
+                csv_path = os.path.join(os.path.dirname(folder), "labels.csv")
+            else:
+                csv_path = os.path.join(folder, f"{self.flag}.csv") 
+        else:
+            csv_path = None
+        #print(f"save : img_path = {img_path}")
         save2d(imgs=self.imgs,
                labels=self.labels,
-               img_folder=os.path.join(folder, self.flag),
+               #img_folder=os.path.join(folder, self.flag),
+               img_folder=img_path,
                split=self.split,
                postfix=postfix,
-               csv_path=os.path.join(folder, f"{self.flag}.csv") if write_csv else None)
+               csv_path=csv_path,
+               customize=customize)
 
     def montage(self, length=20, replace=False, save_folder=None):
         from medmnist.utils import montage2d
