@@ -169,7 +169,7 @@ def customize_save_fn(imgs, labels, img_folder,
 
         if csv_path is not None:
             #line = f"{SPLIT_DICT[split]},{file_name},{','.join(map(str,label))}\n"
-            line = f"{file_name},{','.join(map(str,label))}, {'./'+os.path.basename(img_folder)+'/'+file_name}\n"
+            line = f"{file_name},{','.join(map(str,label))},{'./'+os.path.basename(img_folder)+'/'+file_name}\n"
             csv_file.write(line)
 
     if csv_path is not None:
