@@ -45,7 +45,7 @@ def create_sub_path(ds_name:str, ds_cat: str, data_path:str, D3T_D2F:bool):
     else:
         assert False, f"incorrect ds_cat = {ds_cat} provided!"
     
-    img_folder_name = 'dicoms' if D3T_D2F else 'pngs'
+    img_folder_name = 'dcms' if D3T_D2F else 'pngs'
     
     ds_path = os.path.join(data_path, ds_name)
     ds_sub_path = os.path.join(ds_path, ds_name+'_'+name)
@@ -89,8 +89,14 @@ def montage2d(imgs, n_channels, sel):
 
 
 def save3d(imgs, labels, img_folder,
-           split, postfix, csv_path):
-    return save_fn(imgs, labels, img_folder,
+           split, postfix, csv_path, customize=False):
+    if customize:
+        return customize_save_fn(imgs, labels, img_folder,
+                   split, postfix, csv_path,
+                   load_fn=sitk_load_frames,
+                   save_fn=save_frames_as_dcm)
+    else:
+        return save_fn(imgs, labels, img_folder,
                    split, postfix, csv_path,
                    load_fn=load_frames,
                    save_fn=save_frames_as_gif)
@@ -116,6 +122,7 @@ def save_fn(imgs, labels, img_folder,
 
     if csv_path is not None:
         csv_file = open(csv_path, "a")
+        print(f"save_fn: csv_file = {csv_path}")
 
     for idx in trange(imgs.shape[0]):
 
@@ -140,7 +147,7 @@ def customize_save_fn(imgs, labels, img_folder,
             load_fn, save_fn):
 
     assert imgs.shape[0] == labels.shape[0], f"imgs.shape[0] = {imgs.shape[0]} labels.shape[0] = {labels.shape[0]}"
-    print("customize 2d saving function")
+    print("customize saving function")
     
     # if not os.path.exists(img_folder):
     #     os.makedirs(img_folder)
@@ -148,7 +155,7 @@ def customize_save_fn(imgs, labels, img_folder,
     if csv_path is not None:
         csv_file = open(csv_path, "a")
 
-    # print (f"csv_path = {csv_path}")
+    print (f"csv_path = {csv_path}")
 
     for idx in trange(imgs.shape[0]):
 
@@ -180,3 +187,18 @@ def save_frames_as_gif(frames, path, duration=200):
     frames[0].save(path, save_all=True, append_images=frames[1:],
                    duration=duration, loop=0)
 
+
+def sitk_load_frames(arr):
+    import SimpleITK as sitk
+    imgs_arry = sitk.GetImageFromArray(arr)
+    return imgs_arry
+
+
+def save_frames_as_dcm(frames, path):
+    assert path.endswith(".dcm")
+    import SimpleITK as sitk
+    sitk.WriteImage(frames, path)
+
+    #print(f"save_frames_as_dcm: frames has {len(frames)} frames")
+    # frames[0].save(path, save_all=True, append_images=frames[1:],
+    #                duration=duration, loop=0)

@@ -85,20 +85,17 @@ DataClass = getattr(medmnist, info['python_class'])
 from medmnist.utils import create_sub_path, WriteCsv
 
 ds_imgs_path, name, label = create_sub_path(data_flag, 'train', DATA_PATH, D3T_D2F)
-
 # print(f"ds_imgs_path = {ds_imgs_path}")
-
-# csv_file = os.path.join(os.path.dirname(ds_imgs_path), CSV)
-# WriteCsv(csv_file, "w", "ID", "label", "data_path", "")
+csv_file = os.path.join(os.path.dirname(ds_imgs_path), CSV)
+WriteCsv(csv_file, "w", "ID", "label", "data_path", "")
 # train_dataset.save(ds_imgs_path)
-
 
 #### 3D convert
 
 # load the data
 train_dataset = DataClass(split='train',  download=download)
 # encapsulate data into dataloader form
-train_loader = data.DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+# train_loader = data.DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+# train_dataset.save(ds_imgs_path)
 
-ds_imgs_path = "./"
-train_dataset.save(ds_imgs_path)
+train_dataset.save(ds_imgs_path, postfix="dcm", write_csv=True, customize=True)
