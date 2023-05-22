@@ -28,10 +28,10 @@ CUR_PATH = os.getcwd()
 DATA_PATH = os.path.join(CUR_PATH, 'data')
 assert os.path.exists(DATA_PATH) , f'{DATA_PATH} does not exist! please create it mannually!'
 
-# data_flag = 'organmnist3d'
-data_flag = 'breastmnist'
+data_flag = 'nodulemnist3d'
+# data_flag = 'breastmnist'
 
-split_flag = 'train'
+split_flag = 'test'
 
 if data_flag in MED_2D:
     D3T_D2F = False
@@ -53,25 +53,41 @@ n_classes = len(info['label'])
 
 DataClass = getattr(medmnist, info['python_class'])
 
+def full_generate():
+    for split_flag in DATA_SPLIT_FLAG:
+        # load the data
+        train_dataset = DataClass(split=split_flag, download=download)
+        # print information
+        # print(train_dataset)
 
+        ds_imgs_path, name, label = create_sub_path(data_flag, split_flag, DATA_PATH, D3T_D2F)
+        # print(f"ds_imgs_path = {ds_imgs_path}")
+        csv_file = os.path.join(os.path.dirname(ds_imgs_path), CSV)
+        WriteCsv(csv_file, "w", "ID", "label", "data_path", "")
 
-for split_flag in DATA_SPLIT_FLAG:
-    # load the data
-    train_dataset = DataClass(split=split_flag, download=download)
-    # print information
-    # print(train_dataset)
+        if D3T_D2F:
+            #### 3D convert
+            train_dataset.save(ds_imgs_path, postfix="dcm", write_csv=True, customize=True)
+        else:
+            #### 2D convert
+            train_dataset.save(ds_imgs_path)
 
-    ds_imgs_path, name, label = create_sub_path(data_flag, split_flag, DATA_PATH, D3T_D2F)
-    # print(f"ds_imgs_path = {ds_imgs_path}")
-    csv_file = os.path.join(os.path.dirname(ds_imgs_path), CSV)
-    WriteCsv(csv_file, "w", "ID", "label", "data_path", "")
+# load the data
+train_dataset = DataClass(split=split_flag, download=download)
+# print information
+# print(train_dataset)
 
-    if D3T_D2F:
-        #### 3D convert
-        train_dataset.save(ds_imgs_path, postfix="dcm", write_csv=True, customize=True)
-    else:
-        #### 2D convert
-        train_dataset.save(ds_imgs_path)
+ds_imgs_path, name, label = create_sub_path(data_flag, split_flag, DATA_PATH, D3T_D2F)
+# print(f"ds_imgs_path = {ds_imgs_path}")
+csv_file = os.path.join(os.path.dirname(ds_imgs_path), CSV)
+WriteCsv(csv_file, "w", "ID", "label", "data_path", "")
+
+if D3T_D2F:
+    #### 3D convert
+    train_dataset.save(ds_imgs_path, postfix="dcm", write_csv=True, customize=True)
+else:
+    #### 2D convert
+    train_dataset.save(ds_imgs_path)
 
 
 # load the data

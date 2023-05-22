@@ -17,7 +17,7 @@ def check_dir_exit(dir_name: str) -> bool:
     if os.path.exists(dir_name):
         return True
     else:
-        print(f"{dir_name} does not exist!")
+        print(f"{dir_name} does not exist! considering create it..")
         return False
 
 def create_dir(dir_path: str):
@@ -51,9 +51,9 @@ def create_sub_path(ds_name:str, ds_cat: str, data_path:str, D3T_D2F:bool):
     ds_sub_path = os.path.join(ds_path, ds_name+'_'+name)
     ds_imgs_path = os.path.join(ds_sub_path, img_folder_name)
        
-    create_dir(ds_path)
-    create_dir(ds_sub_path)
-    create_dir(ds_imgs_path)
+    create_dir(ds_path)         # exp: breastmnist
+    create_dir(ds_sub_path)     # exp: breastmnist/breastmnist_test_images
+    create_dir(ds_imgs_path)    # exp: breastmnist/breastmnist_test_images/pngs or dcms
 
     return ds_imgs_path, name, label
 
@@ -187,18 +187,34 @@ def save_frames_as_gif(frames, path, duration=200):
     frames[0].save(path, save_all=True, append_images=frames[1:],
                    duration=duration, loop=0)
 
-
 def sitk_load_frames(arr):
+    frames = []
     import SimpleITK as sitk
-    imgs_arry = sitk.GetImageFromArray(arr)
-    return imgs_arry
+    # for frame in arr:
+    #     frames.append(sitk.GetImageFromArray(frame))
+    #print(f"sitk_load_frames: num of img : {len(frames)}")
+    return sitk.GetImageFromArray(arr)
 
 
-def save_frames_as_dcm(frames, path):
+def save_frames_as_dcm(imgs_arry, path):
+    '''write frames into one dcms'''
+    assert path.endswith(".dcm")
+    #print(f"save_frames_as_dcms: dcm_path = {path}, num of img : {len(imgs_arry)}")
+    import SimpleITK as sitk
+    sitk.WriteImage(imgs_arry, path)   
+
+
+def save_frames_as_multidcms(imgs_arry, path):
+    '''write frames into multiple dcms'''
     assert path.endswith(".dcm")
     import SimpleITK as sitk
-    sitk.WriteImage(frames, path)
 
-    #print(f"save_frames_as_dcm: frames has {len(frames)} frames")
-    # frames[0].save(path, save_all=True, append_images=frames[1:],
-    #                duration=duration, loop=0)
+    print(f"save_frames_as_multidcms: dcm_path = {path}, num of img : {len(imgs_arry)}")
+    create_dir(path)
+    os.chdir(path)
+    i = 0
+    for x in imgs_arry:
+        #img = sitk.GetImageFromArray(x)
+        sitk.WriteImage(x, str(i) + '.dcm')
+        i+=1
+        #print(f"array #{i}, name = {this_img_name}")
