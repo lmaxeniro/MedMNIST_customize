@@ -36,7 +36,10 @@ def writeSlices(Writer, series_tag_values, new_img, out_dir, i):
 
     # Setting the type to CT so that the slice location is preserved and
     # the thickness is carried over.
+    # Modality
     image_slice.SetMetaData("0008|0060", "CT")
+    # the Manufacturer
+    image_slice.SetMetaData("0008|0070", "Xeniro")
 
     # (0020, 0032) image position patient determines the 3D spacing between
     # slices.
