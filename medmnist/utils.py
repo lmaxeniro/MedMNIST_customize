@@ -12,6 +12,47 @@ SPLIT_DICT = {
 }  # compatible for Google AutoML Vision
 
 import csv
+import time
+
+
+def writeSlices(Writer, series_tag_values, new_img, out_dir, i):
+    image_slice = new_img[:, :, i]
+
+    # Tags shared by the series.
+    list(
+        map(
+            lambda tag_value: image_slice.SetMetaData(
+                tag_value[0], tag_value[1]
+            ),
+            series_tag_values,
+        )
+    )
+
+    # Slice specific tags.
+    #   Instance Creation Date
+    image_slice.SetMetaData("0008|0012", time.strftime("%Y%m%d"))
+    #   Instance Creation Time
+    image_slice.SetMetaData("0008|0013", time.strftime("%H%M%S"))
+
+    # Setting the type to CT so that the slice location is preserved and
+    # the thickness is carried over.
+    image_slice.SetMetaData("0008|0060", "CT")
+
+    # (0020, 0032) image position patient determines the 3D spacing between
+    # slices.
+    #   Image Position (Patient)
+    image_slice.SetMetaData(
+        "0020|0032",
+        "\\".join(map(str, new_img.TransformIndexToPhysicalPoint((0, 0, i)))),
+    )
+    #   Instance Number
+    image_slice.SetMetaData("0020|0013", str(i))
+
+    # Write to the output directory and add the extension dcm, to force
+    # writing in DICOM format.
+    Writer.SetFileName(os.path.join(out_dir, str(i) + ".dcm"))
+    Writer.Execute(image_slice)
+
 
 def check_dir_exit(dir_name: str) -> bool:
     if os.path.exists(dir_name):
@@ -93,8 +134,8 @@ def save3d(imgs, labels, img_folder,
     if customize:
         return customize_save_fn(imgs, labels, img_folder,
                    split, postfix, csv_path,
-                   load_fn=sitk_load_frames,
-                   save_fn=save_frames_as_dcm)
+                   load_fn=load_frames_for_dcm,
+                   save_fn=write_dcms)
     else:
         return save_fn(imgs, labels, img_folder,
                    split, postfix, csv_path,
@@ -167,9 +208,14 @@ def customize_save_fn(imgs, labels, img_folder,
 
         save_fn(img, os.path.join(img_folder, file_name))
 
+        if save_fn == write_dcms:
+            ext_path = '/'
+        else:
+            ext_path = ''
+
         if csv_path is not None:
             #line = f"{SPLIT_DICT[split]},{file_name},{','.join(map(str,label))}\n"
-            line = f"{file_name},{','.join(map(str,label))},{'./'+os.path.basename(img_folder)+'/'+file_name}\n"
+            line = f"{file_name},{','.join(map(str,label))},{'./'+os.path.basename(img_folder)+'/'+file_name+ext_path}\n"
             csv_file.write(line)
 
     if csv_path is not None:
@@ -188,11 +234,7 @@ def save_frames_as_gif(frames, path, duration=200):
                    duration=duration, loop=0)
 
 def sitk_load_frames(arr):
-    frames = []
     import SimpleITK as sitk
-    # for frame in arr:
-    #     frames.append(sitk.GetImageFromArray(frame))
-    #print(f"sitk_load_frames: num of img : {len(frames)}")
     return sitk.GetImageFromArray(arr)
 
 
@@ -203,18 +245,79 @@ def save_frames_as_dcm(imgs_arry, path):
     import SimpleITK as sitk
     sitk.WriteImage(imgs_arry, path)   
 
+#############################################
 
-def save_frames_as_multidcms(imgs_arry, path):
-    '''write frames into multiple dcms'''
-    assert path.endswith(".dcm")
+def load_frames_for_dcm(arr):
     import SimpleITK as sitk
 
-    print(f"save_frames_as_multidcms: dcm_path = {path}, num of img : {len(imgs_arry)}")
+    new_img = sitk.GetImageFromArray(arr)
+    new_img.SetSpacing([1, 1, 1]) #todo: read from dic for each dataset
+
+    return new_img
+
+def write_dcms(new_img, path):
+    import SimpleITK as sitk
+    modification_time = time.strftime("%H%M%S")
+    modification_date = time.strftime("%Y%m%d")
+    direction = new_img.GetDirection()
+
+    series_tag_values = [
+    ("0008|0031", modification_time),  # Series Time
+    ("0008|0021", modification_date),  # Series Date
+    ("0008|0008", "DERIVED\\SECONDARY"),  # Image Type
+    (
+        "0020|000e",
+        "1.2.826.0.1.3680043.2.1125."
+        + modification_date
+        + ".1"
+        + modification_time,
+    ),  # Series Instance UID
+    (
+        "0020|0037",
+        "\\".join(
+            map(
+                str,
+                (
+                    direction[0],
+                    direction[3],
+                    direction[6],
+                    direction[1],
+                    direction[4],
+                    direction[7],
+                ),
+            )
+        ),
+    ),  # Image Orientation
+    # (Patient)
+    ("0008|103e", "ConvertedfromNumpy"),  # Series Description
+    ]
+
+    # If we want to write floating point values, we need to use the rescale
+    # slope, "0028|1053", to select the number of digits we want to keep. We
+    # also need to specify additional pixel storage and representation
+    # information.
+
+    # rescale_slope = 0.001  # keep three digits after the decimal point
+    # series_tag_values = series_tag_values + [
+    #     ("0028|1053", str(rescale_slope)),  # rescale slope
+    #     ("0028|1052", "0"),  # rescale intercept
+    #     ("0028|0100", "16"),  # bits allocated
+    #     ("0028|0101", "16"),  # bits stored
+    #     ("0028|0102", "15"),  # high bit
+    #     ("0028|0103", "1"),
+    # ]  # pixel representation
+
     create_dir(path)
-    os.chdir(path)
-    i = 0
-    for x in imgs_arry:
-        #img = sitk.GetImageFromArray(x)
-        sitk.WriteImage(x, str(i) + '.dcm')
-        i+=1
-        #print(f"array #{i}, name = {this_img_name}")
+    # os.chdir(path)
+
+    writer = sitk.ImageFileWriter()
+    # Use the study/series/frame of reference information given in the meta-data
+    # dictionary and not the automatically generated information from the file IO
+    writer.KeepOriginalImageUIDOn()
+
+    list(
+    map(
+        lambda i: writeSlices(writer, series_tag_values, new_img, path, i),
+        range(new_img.GetDepth()),
+    )
+    )
