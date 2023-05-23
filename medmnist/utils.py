@@ -14,6 +14,7 @@ SPLIT_DICT = {
 import csv
 import time
 
+# https://www.dicomlibrary.com/dicom/dicom-tags/
 
 def writeSlices(Writer, series_tag_values, new_img, out_dir, i):
     image_slice = new_img[:, :, i]
@@ -61,7 +62,7 @@ def check_dir_exit(dir_name: str) -> bool:
     if os.path.exists(dir_name):
         return True
     else:
-        print(f"{dir_name} does not exist! considering create it..")
+        #print(f"{dir_name} does not exist! considering create it..")
         return False
 
 def create_dir(dir_path: str):
@@ -191,7 +192,6 @@ def customize_save_fn(imgs, labels, img_folder,
             load_fn, save_fn):
 
     assert imgs.shape[0] == labels.shape[0], f"imgs.shape[0] = {imgs.shape[0]} labels.shape[0] = {labels.shape[0]}"
-    print("customize saving function")
     
     # if not os.path.exists(img_folder):
     #     os.makedirs(img_folder)
@@ -199,7 +199,7 @@ def customize_save_fn(imgs, labels, img_folder,
     if csv_path is not None:
         csv_file = open(csv_path, "a")
 
-    print (f"csv_path = {csv_path}")
+    # print (f"csv_path = {csv_path}")
 
     for idx in trange(imgs.shape[0]):
 
