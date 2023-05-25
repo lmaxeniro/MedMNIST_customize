@@ -1,3 +1,13 @@
+# MedMNIST_customize
+MedMNIST原始数据为numpy压缩 （npz）格式文件。
+本实现对原始代码做了扩展（原始能力不受影响），完成：
+- 2D数据->png格式的转换。
+- 3D数据->dcm序列的转换。
+- 输出结果文件夹结构按照Raymics Cloud的要求来组织。
+ 
+具体实现见convert.py代码。
+扩展修改部分集中于medmnist/utils.py。
+
 # MedMNIST: [medmnist.com](https://medmnist.github.io/)
 ## Data ([Zenodo](https://doi.org/10.5281/zenodo.6496656)) | Publication ([Scientific Data](https://doi.org/10.1038/s41597-022-01721-8) / [arXiv](https://arxiv.org/abs/2110.14795)) | MedMNIST v1 ([ISBI'21](https://medmnist.github.io/v1)) 
 [Jiancheng Yang](https://jiancheng-yang.com/), Rui Shi, [Donglai Wei](https://donglaiw.github.io/), Zequan Liu, Lin Zhao, [Bilian Ke](https://scholar.google.com/citations?user=2cX5y8kAAAAJ&hl=en), [Hanspeter Pfister](https://scholar.google.com/citations?user=VWX-GMAAAAAJ&hl=en), [Bingbing Ni](https://scholar.google.com/citations?user=eUbmKwYAAAAJ)
