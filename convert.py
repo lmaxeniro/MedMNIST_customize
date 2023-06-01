@@ -2,13 +2,8 @@ import os
 import sys
 
 import medmnist
-# from medmnist import INFO
 from medmnist.info import INFO, DEFAULT_ROOT
 from medmnist.utils import create_sub_path, WriteCsv
-
-import SimpleITK as sitk
-import numpy as np
-import os
 
 
 print(f"MedMNIST v{medmnist.__version__} @ {medmnist.HOMEPAGE}")
@@ -17,7 +12,7 @@ print("===    This is Xeniro custimized version   ===")
 print("===   for 2D and 3D npy data file convert  ===")
 print("==============================================")
 
-MED_2D = ['pathmnist', 'chestmnist', 'dermamnist', 'pneumoniamnist', 'retinamnist', 'breastmnist', 'bloodmnist', 'tissuemnist']
+MED_2D = ['pathmnist', 'chestmnist', 'dermamnist', 'pneumoniamnist', 'retinamnist', 'breastmnist', 'bloodmnist', 'tissuemnist', 'octmnist','organamnist','organcmnist','organsmnist']
 MED_3D = ['organmnist3d', 'nodulemnist3d', 'adrenalmnist3d' , 'fracturemnist3d' , 'vesselmnist3d', 'synapsemnist3d']
 DATA_SPLIT_FLAG = ['train', 'val', 'test']
 D3T_D2F = None
