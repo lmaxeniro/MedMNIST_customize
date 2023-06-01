@@ -1,11 +1,9 @@
-# from tqdm import tqdm
-
-
 import os
-
+import sys
 
 import medmnist
-from medmnist import INFO, Evaluator
+# from medmnist import INFO
+from medmnist.info import INFO, DEFAULT_ROOT
 from medmnist.utils import create_sub_path, WriteCsv
 
 import SimpleITK as sitk
@@ -14,6 +12,10 @@ import os
 
 
 print(f"MedMNIST v{medmnist.__version__} @ {medmnist.HOMEPAGE}")
+print("==============================================")
+print("===    This is Xeniro custimized version   ===")
+print("===   for 2D and 3D npy data file convert  ===")
+print("==============================================")
 
 MED_2D = ['pathmnist', 'chestmnist', 'dermamnist', 'pneumoniamnist', 'retinamnist', 'breastmnist', 'bloodmnist', 'tissuemnist']
 MED_3D = ['organmnist3d', 'nodulemnist3d', 'adrenalmnist3d' , 'fracturemnist3d' , 'vesselmnist3d', 'synapsemnist3d']
@@ -23,11 +25,27 @@ D3T_D2F = None
 MIN_Samples = 20
 CSV  = "labels.csv"
      
-USER_PATH = os.path.expanduser('~')
+# USER_PATH = os.path.expanduser('~')
 CUR_PATH = os.getcwd()
 DATA_PATH = os.path.join(CUR_PATH, 'data')
 assert os.path.exists(DATA_PATH) , f'{DATA_PATH} does not exist! please create it mannually!'
 
+def check_valid_dataflag(data_flag: str) -> bool :
+    '''check given data_flag is valid, if valid, return False(2D) or True (3D)'''
+    if data_flag in MED_2D:
+        return  False
+    elif data_flag in MED_3D:
+        return True
+    else:
+        assert False, f"data_flag {data_flag} not recongnized!"
+
+def download_origin_npy(data_flag: str):
+    '''doanload the original npy dataset'''
+    check_valid_dataflag(data_flag)
+    path = DEFAULT_ROOT
+    print(f"Downloading {data_flag}, save to {path}:")
+    _ = getattr(medmnist, INFO[data_flag]['python_class'])(
+        split="train", root=path, download=True)
 
 def full_generate():
     '''convert all dataset'''
@@ -38,12 +56,9 @@ def full_generate():
         specific_dataset(data_flag_3d)    
 
 def specific_dataset(data_flag: str):
-    if data_flag in MED_2D:
-        D3T_D2F = False
-    elif data_flag in MED_3D:
-        D3T_D2F = True
-    else:
-        assert False, f"data_flag {data_flag} not recongnized!"
+    '''convert specific dataset, dataset name: data_flag'''
+    D3T_D2F = check_valid_dataflag(data_flag)
+    download_origin_npy(data_flag)
 
     download = True
     info = INFO[data_flag]
@@ -71,21 +86,30 @@ def specific_dataset(data_flag: str):
             #### 2D convert
             dataset.save(ds_imgs_path, postfix="png", write_csv=True, customize=True)
 
+###############################################################################
 
-#data_flag = 'nodulemnist3d'
-# data_flag = 'breastmnist'
-data_flag = 'pneumoniamnist'
+# data_flag = 'nodulemnist3d'       #3D  #BC
+# data_flag = 'breastmnist'         #2D  #BC
+# data_flag = 'pneumoniamnist'      #2D  #BC
+# data_flag = 'dermamnist'            #2D  #MC(7)
 
-specific_dataset(data_flag)
+# specific_dataset(data_flag)
+# full_generate()
 
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("No enough parameters provided..")
+        print(
+            "Usage: python "
+            + __file__
+            + " <dataset_name>"
+        )
+        sys.exit(1)
+    else:
+        dataset_name = sys.argv[1]
+    
+    if dataset_name == 'all':
+        full_generate()
+    else:
+        specific_dataset(dataset_name)
 
-######################################
-
-
-# load the data
-# train_dataset = DataClass(split='train',  download=download)
-# encapsulate data into dataloader form
-# train_loader = data.DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-# train_dataset.save(ds_imgs_path)
-
-# train_dataset.save(ds_imgs_path, postfix="dcm", write_csv=True, customize=True)
