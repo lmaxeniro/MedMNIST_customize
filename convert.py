@@ -25,6 +25,28 @@ CUR_PATH = os.getcwd()
 DATA_PATH = os.path.join(CUR_PATH, 'data')
 assert os.path.exists(DATA_PATH) , f'{DATA_PATH} does not exist! please create it mannually!'
 
+def print_dataset_info(data_flag: str):
+    '''print dataset infor'''
+
+    info = INFO[data_flag]
+    description = info['description']
+    task = info['task']
+    n_channels = info['n_channels']
+    n_classes = len(info['label'])
+    label_list = info['label']
+    #DataClass = getattr(medmnist, info['python_class'])
+    #download = False
+    #dataset = DataClass(split='train', download=download)
+    # print(dataset)
+    # print(type(dataset))
+    # print(label_list)
+    print(description)
+    print(f"task = {task}, n_channels = {n_channels}, n_classes = {n_classes}")
+
+    print("label mapping:")
+    for key, value in label_list.items():
+        print(f"label[{key}] : value is [{value}]" )
+
 def check_valid_dataflag(data_flag: str) -> bool :
     '''check given data_flag is valid, if valid, return False(2D) or True (3D)'''
     if data_flag in MED_2D:
@@ -44,22 +66,23 @@ def download_origin_npy(data_flag: str):
 
 def full_generate():
     '''convert all dataset'''
+    print_dataset_info(dataset_name)
     for data_flag_2d in MED_2D:
         specific_dataset(data_flag_2d)
 
     for data_flag_3d in MED_3D:
-        specific_dataset(data_flag_3d)    
+        specific_dataset(data_flag_3d)
 
 def specific_dataset(data_flag: str):
     '''convert specific dataset, dataset name: data_flag'''
     D3T_D2F = check_valid_dataflag(data_flag)
     download_origin_npy(data_flag)
 
-    download = True
+    download = False
     info = INFO[data_flag]
-    task = info['task']
-    n_channels = info['n_channels']
-    n_classes = len(info['label'])
+    # task = info['task']
+    # n_channels = info['n_channels']
+    # n_classes = len(info['label'])
 
     DataClass = getattr(medmnist, info['python_class'])
 
@@ -106,5 +129,6 @@ if __name__ == "__main__":
     if dataset_name == 'all':
         full_generate()
     else:
+        print_dataset_info(dataset_name)
         specific_dataset(dataset_name)
 
