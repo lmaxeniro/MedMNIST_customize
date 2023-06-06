@@ -34,14 +34,16 @@ def print_dataset_info(data_flag: str):
     n_channels = info['n_channels']
     n_classes = len(info['label'])
     label_list = info['label']
-    #DataClass = getattr(medmnist, info['python_class'])
-    #download = False
-    #dataset = DataClass(split='train', download=download)
+    spacing = info['3d_spacing']
+    # DataClass = getattr(medmnist, info['python_class'])
+    # download = False
+    # dataset = DataClass(split='train', download=download)
     # print(dataset)
     # print(type(dataset))
     # print(label_list)
     print(description)
     print(f"task = {task}, n_channels = {n_channels}, n_classes = {n_classes}")
+    print(f"spacing = {spacing}, note this is only valid for 3D dataset")
 
     print("label mapping:")
     for key, value in label_list.items():
@@ -125,9 +127,18 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         dataset_name = sys.argv[1]
-    
+        
     if dataset_name == 'all':
         full_generate()
+    elif dataset_name == '2d':
+        for actual_dataset_name in MED_2D:
+            print_dataset_info(actual_dataset_name)
+            specific_dataset(actual_dataset_name)
+
+    elif dataset_name == '3d':
+        for actual_dataset_name in MED_3D:
+            print_dataset_info(actual_dataset_name)
+            specific_dataset(actual_dataset_name)
     else:
         print_dataset_info(dataset_name)
         specific_dataset(dataset_name)

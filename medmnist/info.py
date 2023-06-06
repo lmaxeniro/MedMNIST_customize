@@ -50,6 +50,7 @@ INFO = {
             "val": 10004,
             "test": 7180
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "chestmnist": {
@@ -82,6 +83,7 @@ INFO = {
             "val": 11219,
             "test": 22433
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "dermamnist": {
@@ -107,6 +109,7 @@ INFO = {
             "val": 1003,
             "test": 2005
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "octmnist": {
@@ -129,6 +132,7 @@ INFO = {
             "val": 10832,
             "test": 1000
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "pneumoniamnist": {
@@ -149,6 +153,7 @@ INFO = {
             "val": 524,
             "test": 624
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "retinamnist": {
@@ -172,6 +177,7 @@ INFO = {
             "val": 120,
             "test": 400
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "breastmnist": {
@@ -192,6 +198,7 @@ INFO = {
             "val": 78,
             "test": 156
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "bloodmnist": {
@@ -218,6 +225,7 @@ INFO = {
             "val": 1712,
             "test": 3421
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "tissuemnist": {
@@ -244,6 +252,7 @@ INFO = {
             "val": 23640,
             "test": 47280
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "organamnist": {
@@ -273,6 +282,7 @@ INFO = {
             "val": 6491,
             "test": 17778
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "organcmnist": {
@@ -302,6 +312,7 @@ INFO = {
             "val": 2392,
             "test": 8268
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "organsmnist": {
@@ -331,6 +342,7 @@ INFO = {
             "val": 2452,
             "test": 8829
         },
+        "3d_spacing": None,
         "license": "CC BY 4.0"
     },
     "organmnist3d": {
@@ -360,6 +372,7 @@ INFO = {
             "val": 161,
             "test": 610
         },
+        "3d_spacing": None, ##todo, no infor on paper?
         "license": "CC BY 4.0"
     },
     "nodulemnist3d": {
@@ -380,6 +393,7 @@ INFO = {
             "val": 165,
             "test": 310
         },
+        "3d_spacing": [1,1,1],
         "license": "CC BY 4.0"
     },
     "adrenalmnist3d": {
@@ -400,6 +414,7 @@ INFO = {
             "val": 98,
             "test": 298
         },
+        "3d_spacing": [64,64,64],
         "license": "CC BY 4.0"
     },
     "fracturemnist3d": {
@@ -421,6 +436,7 @@ INFO = {
             "val": 103,
             "test": 240
         },
+        "3d_spacing": [64,64,64],
         "license": "CC BY 4.0"
     },
     "vesselmnist3d": {
@@ -441,6 +457,7 @@ INFO = {
             "val": 192,
             "test": 382
         },
+        "3d_spacing": None, ##todo, no infor on paper?
         "license": "CC BY 4.0"
     },
     "synapsemnist3d": {
@@ -461,6 +478,7 @@ INFO = {
             "val": 177,
             "test": 352
         },
+        "3d_spacing": [0.001024,0.001024,0.001024], #1024×1024×1024nm3
         "license": "CC BY 4.0"
     }
 }

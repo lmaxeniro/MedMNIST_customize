@@ -109,7 +109,7 @@ def save2d(imgs, labels, img_folder,
     if customize:
         return customize_save_fn(imgs, labels, img_folder,
             split, postfix, csv_path,
-            load_fn=lambda arr: Image.fromarray(arr),
+            load_fn=lambda arr, spacing: Image.fromarray(arr, spacing),
             save_fn=lambda img, path: img.save(path))
     
     else:
@@ -134,12 +134,13 @@ def montage2d(imgs, n_channels, sel):
 
 
 def save3d(imgs, labels, img_folder,
-           split, postfix, csv_path, customize=False):
+           split, postfix, csv_path, customize=False, spacing = None):
     if customize:
         return customize_save_fn(imgs, labels, img_folder,
                    split, postfix, csv_path,
                    load_fn=load_frames_for_dcm,
-                   save_fn=write_dcms)
+                   save_fn=write_dcms,
+                   spacing=spacing)
     else:
         return save_fn(imgs, labels, img_folder,
                    split, postfix, csv_path,
@@ -189,7 +190,7 @@ def save_fn(imgs, labels, img_folder,
 
 def customize_save_fn(imgs, labels, img_folder,
             split, postfix, csv_path,
-            load_fn, save_fn):
+            load_fn, save_fn, spacing=None):
 
     assert imgs.shape[0] == labels.shape[0], f"imgs.shape[0] = {imgs.shape[0]} labels.shape[0] = {labels.shape[0]}"
     
@@ -203,7 +204,7 @@ def customize_save_fn(imgs, labels, img_folder,
 
     for idx in trange(imgs.shape[0]):
 
-        img = load_fn(imgs[idx])
+        img = load_fn(imgs[idx], spacing)
 
         label = labels[idx]
 
@@ -236,7 +237,7 @@ def save_frames_as_gif(frames, path, duration=200):
     frames[0].save(path, save_all=True, append_images=frames[1:],
                    duration=duration, loop=0)
 
-def sitk_load_frames(arr):
+def sitk_load_frames(arr, spacing=None):
     import SimpleITK as sitk
     return sitk.GetImageFromArray(arr)
 
@@ -250,11 +251,16 @@ def save_frames_as_dcm(imgs_arry, path):
 
 #############################################
 
-def load_frames_for_dcm(arr):
-    import SimpleITK as sitk
+# define a dict for medmnist 3D dataset spacing, 
+# this is not supported from original implementation.
+# the best approach would be pass the spacing from info?
 
-    new_img = sitk.GetImageFromArray(arr)
-    new_img.SetSpacing([1, 1, 1]) #todo: read from dic for each dataset
+def load_frames_for_dcm(arry, spacing):
+    import SimpleITK as sitk
+    spacing_3d = spacing if spacing != None else [1,1,1] # a few 3d dataset has no spacing 
+
+    new_img = sitk.GetImageFromArray(arry)
+    new_img.SetSpacing(spacing_3d) 
 
     return new_img
 

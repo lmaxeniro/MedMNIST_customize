@@ -73,6 +73,7 @@ class MedMNIST(Dataset):
         body.append(f"Meaning of labels: {self.info['label']}")
         body.append(f"Number of samples: {self.info['n_samples']}")
         body.append(f"Description: {self.info['description']}")
+        body.append(f"3D spacing: {self.info['3d_spacing']}")
         body.append(f"License: {self.info['license']}")
 
         lines = [head] + [" " * _repr_indent + line for line in body]
@@ -192,7 +193,8 @@ class MedMNIST3D(MedMNIST):
                split=self.split,
                postfix=postfix,
                csv_path=csv_path,
-               customize=customize)
+               customize=customize,
+               spacing = self.info['3d_spacing'])
 
     def montage(self, length=20, replace=False, save_folder=None):
         assert self.info['n_channels'] == 1
